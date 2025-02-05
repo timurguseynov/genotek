@@ -16,28 +16,33 @@ jobs:
           docker build . -t genotek -f Dockerfile
           docker save genotek | gzip > genotek.tgz
 
+      # TODO: upload directly to VM or to registry
+      #
+      ## Direct upload
+      # - name: Install SSH key
+      #   uses: shimataro/ssh-key-action@v2
+      #   with:
+      #     key: ${{ secrets.SSH_KEY }}
+      #     known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      #
+      # - name: Upload and restart the docker image
+      #   run: |
+      #     scp genotek.tgz root@${{ YC_VM_IP_ADDRESS }}:/tmp/
+      #     ssh root@${{ YC_VM_IP_ADDRESS }} '
+      #       gunzip -c /tmp/genotek.tgz | docker load &&
+      #       docker stop genotek_service || true &&
+      #       docker rm genotek_service || true &&
+      #       docker run -d --name genotek_service genotek
+      #     '
+      #
+      ## Yandex Cloud registry upload
       # - name: Login to Yandex Cloud Container Registry
       #   id: login-cr
       #   uses: yc-actions/yc-cr-login@v1
       #   with:
       #     yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
+      #
       # - name: Build, tag, and push image to Yandex Cloud Container Registry
       #   run: |
       #     docker build -t cr.yandex/${{ env.YC_CR_REGISTRY }}/${{ env.YC_CR_REPOSITORY }}:$IMAGE_TAG .
       #     docker push cr.yandex/${{ env.YC_CR_REGISTRY }}/${{ env.YC_CR_REPOSITORY }}:$IMAGE_TAG
-
-      # - name: Deploy COI VM
-      #   id: deploy-coi
-      #   uses: yc-actions/yc-coi-deploy@v2
-      #   with:
-      #     yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-      #     folder-id: ${{ env.YC_FOLDER_ID }}
-      #     vm-name: ${{ env.YC_VM_NAME }}
-      #     vm-service-account-id: ${{ env.YC_VM_SERVICE_ACCOUNT_ID }}
-      #     vm-cores: 2
-      #     vm-memory: 2Gb
-      #     vm-core-fraction: 100
-      #     vm-subnet-id: ${{ env.YC_VM_SUBNET_ID }}
-      #     user-data-path: "./user-data.yaml"
-      #     docker-compose-path: "./docker-compose.yaml"
