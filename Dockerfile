@@ -15,7 +15,7 @@ RUN npm install --production
 # Stage 3: Install the new version of node and merge both into genotek/r-base
 FROM genotek/r-base
 RUN wget https://nodejs.org/dist/v20.9.0/node-v20.9.0-linux-x64.tar.xz -P /tmp && \
-  tar -xJvf /tmp/node-v20.9.0-linux-x64.tar.xz -C /usr/local --strip-components=1 && \
+  tar -xJf /tmp/node-v20.9.0-linux-x64.tar.xz -C /usr/local --strip-components=1 && \
   ln -s /usr/local/bin/node /usr/bin/node && \
   ln -s /usr/local/bin/npm /usr/bin/npm
 COPY --from=server /app /app
