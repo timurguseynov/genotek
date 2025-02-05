@@ -15,8 +15,3 @@ jobs:
         run: |
           docker build . -t genotek -f Dockerfile
           docker save genotek | gzip > genotek.tgz
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_KEY }}
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
