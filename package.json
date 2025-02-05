@@ -4,7 +4,7 @@
     "dev": "NODE_ENV=development nodemon server.js --dev",
     "start": "NODE_ENV=production node server.js",
     "build": "vite build",
-    "test": "node --test"
+    "test": "vitest"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",
