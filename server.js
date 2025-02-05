@@ -1,6 +1,8 @@
 import Fastify from "fastify";
 import FastifyVite from "@fastify/vite";
 import cors from "@fastify/cors";
+import cluster from "node:cluster";
+import { availableParallelism } from "node:os";
 
 export async function main(dev) {
   const server = Fastify();
@@ -43,13 +45,38 @@ export async function main(dev) {
   return server;
 }
 
-!process.env.NODE_ENV !== "test" &&
+function startDevProd() {
+  if (process.env.NODE_ENV === "test") {
+    return;
+  }
+
+  const numCPUs = availableParallelism();
+
+  if (process.env.NODE_ENV === "production" && cluster.isPrimary) {
+    console.log(`Primary process ${process.pid} is running`);
+
+    // Fork workers equal to the number of CPU cores
+    for (let i = 0; i < numCPUs; i++) {
+      cluster.fork();
+    }
+
+    // Restart a worker if it exits unexpectedly
+    cluster.on("exit", (worker, code, signal) => {
+      console.log(`Worker ${worker.process.pid} died. Restarting...`);
+      cluster.fork();
+    });
+    return;
+  }
+
   main(process.env.NODE_ENV === "development").then((server) => {
     server.listen({ port: 3000 }, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);
       }
-      console.log(`Server listening on ${address}`);
+      console.log(`Worker ${process.pid} listening on ${address}`);
     });
   });
+}
+
+startDevProd();
