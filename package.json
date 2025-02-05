@@ -2,8 +2,8 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development nodemon server.js --dev",
-    "start": "NODE_ENV=production node server.js",
-    "build": "vite build",
+    "prod": "NODE_ENV=production node server.js",
+    "build": "NODE_ENV=production vite build",
     "test": "vitest"
   },
   "dependencies": {

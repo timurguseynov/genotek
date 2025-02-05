@@ -69,13 +69,16 @@ function startDevProd() {
   }
 
   main(process.env.NODE_ENV === "development").then((server) => {
-    server.listen({ port: 3000 }, (err, address) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      console.log(`Worker ${process.pid} listening on ${address}`);
-    });
+    server.listen(
+      { port: process.env.PORT || 3000, host: process.env.HOST },
+      (err, address) => {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
+        console.log(`Worker ${process.pid} listening on ${address}`);
+      },
+    );
   });
 }
 

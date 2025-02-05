@@ -26,4 +26,4 @@ RUN node -v
 EXPOSE 3000
 
 # Start the server
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "prod"]

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
 
+axios.defaults.baseURL =
+  import.meta.env.VITE_BASE_URL || import.meta.env.BASE_URL;
+
 const STATUS_LOADING = "loading";
 const STATUS_SUCCESS = "success";
 const STATUS_ERROR = "error";
@@ -11,7 +14,7 @@ function App() {
   const handleGetData = async () => {
     setData({ status: STATUS_LOADING });
     try {
-      const response = await axios.get("http://localhost:3000/api/random");
+      const response = await axios.get(`/api/random`);
       setData({ status: STATUS_SUCCESS, result: response.data });
     } catch (error) {
       setData({ status: STATUS_ERROR, message: error.message });
