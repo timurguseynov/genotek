@@ -24,16 +24,24 @@ function App() {
   return (
     <>
       <Alert status={data.status} />
-      <div className="p-0 text-center bg-body-tertiary">
-        <div className="container py-5">
-          <h1 className="text-body-emphasis">Modern Random Data loader</h1>
-          <p className="col-lg-8 mx-auto lead">
-            Click the button bellow to get started!
-          </p>
-          <Button status={data.status} handleGetData={handleGetData} />
-        </div>
-      </div>
+      <Jumbotron>
+        <Button status={data.status} handleGetData={handleGetData} />
+      </Jumbotron>
     </>
+  );
+}
+
+function Jumbotron({ children }) {
+  return (
+    <div className="p-0 text-center bg-body-tertiary">
+      <div className="container py-5">
+        <h1 className="text-body-emphasis">Modern Random Data Loader</h1>
+        <p className="col-lg-8 mx-auto lead">
+          Click the button below to get started!
+        </p>
+        {children}
+      </div>
+    </div>
   );
 }
 
