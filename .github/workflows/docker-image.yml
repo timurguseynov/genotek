@@ -30,7 +30,7 @@ jobs:
             gunzip -c /tmp/genotek.tgz | docker load &&
             docker stop genotek_service || true &&
             docker rm genotek_service || true &&
-            docker run -d --name genotek_service genotek
+            docker run -d -p 0.0.0.0:3000:3000 --name genotek_service genotek
           '
 
       # TODO: upload directly to VM or to registry
