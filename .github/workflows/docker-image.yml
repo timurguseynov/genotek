@@ -27,10 +27,10 @@ jobs:
         run: |
           scp genotek.tgz admin@${{ vars.VM_IP_ADDRESS }}:/tmp/
           ssh admin@${{ vars.VM_IP_ADDRESS }} '
-            gunzip -c /tmp/genotek.tgz | docker load &&
-            docker stop genotek_service || true &&
-            docker rm genotek_service || true &&
-            docker run -d --network host --name genotek_service -e HOST=0.0.0.0 genotek
+            gunzip -c /tmp/genotek.tgz | sudo docker load &&
+            sudo docker stop genotek_service || true &&
+            sudo docker rm genotek_service || true &&
+            sudo docker run -d --network host --name genotek_service -e HOST=0.0.0.0 genotek
           '
 
       # TODO: upload directly to VM or to registry
