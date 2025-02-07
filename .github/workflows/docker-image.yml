@@ -11,29 +11,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Build the Docker image
         run: |
           docker build . -t genotek -f Dockerfile
           docker save genotek | gzip > genotek.tgz
 
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Upload and restart the docker image
+        run: |
+          scp genotek.tgz root@${{ VM_IP_ADDRESS }}:/tmp/
+          ssh root@${{ VM_IP_ADDRESS }} '
+            gunzip -c /tmp/genotek.tgz | docker load &&
+            docker stop genotek_service || true &&
+            docker rm genotek_service || true &&
+            docker run -d --name genotek_service genotek
+          '
+
       # TODO: upload directly to VM or to registry
       #
       ## Direct upload
-      # - name: Install SSH key
-      #   uses: shimataro/ssh-key-action@v2
-      #   with:
-      #     key: ${{ secrets.SSH_KEY }}
-      #     known_hosts: ${{ secrets.KNOWN_HOSTS }}
-      #
-      # - name: Upload and restart the docker image
-      #   run: |
-      #     scp genotek.tgz root@${{ YC_VM_IP_ADDRESS }}:/tmp/
-      #     ssh root@${{ YC_VM_IP_ADDRESS }} '
-      #       gunzip -c /tmp/genotek.tgz | docker load &&
-      #       docker stop genotek_service || true &&
-      #       docker rm genotek_service || true &&
-      #       docker run -d --name genotek_service genotek
-      #     '
+
       #
       ## Yandex Cloud registry upload
       # - name: Login to Yandex Cloud Container Registry
