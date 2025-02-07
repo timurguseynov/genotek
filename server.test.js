@@ -1,7 +1,5 @@
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import Fastify from "fastify";
 import { main } from "./server.js";
-import fetch from "node-fetch";
 
 let server;
 
