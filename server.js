@@ -3,6 +3,8 @@ import FastifyVite from "@fastify/vite";
 import cors from "@fastify/cors";
 import cluster from "node:cluster";
 import { availableParallelism } from "node:os";
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export async function main(dev) {
   const server = Fastify();
@@ -12,7 +14,7 @@ export async function main(dev) {
   });
 
   await server.register(FastifyVite, {
-    root: import.meta.url,
+    root: dirname(fileURLToPath(import.meta.url)),
     dev: dev,
     spa: true,
   });
