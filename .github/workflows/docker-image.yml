@@ -25,8 +25,8 @@ jobs:
 
       - name: Upload and restart the docker image
         run: |
-          scp genotek.tgz root@${{ vars.VM_IP_ADDRESS }}:/tmp/
-          ssh root@${{ vars.VM_IP_ADDRESS }} '
+          scp genotek.tgz admin@${{ vars.VM_IP_ADDRESS }}:/tmp/
+          ssh admin@${{ vars.VM_IP_ADDRESS }} '
             gunzip -c /tmp/genotek.tgz | docker load &&
             docker stop genotek_service || true &&
             docker rm genotek_service || true &&
