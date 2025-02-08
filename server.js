@@ -3,8 +3,8 @@ import FastifyVite from "@fastify/vite";
 import cors from "@fastify/cors";
 import cluster from "node:cluster";
 import { availableParallelism } from "node:os";
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 export async function main(dev) {
   const server = Fastify();
@@ -19,9 +19,12 @@ export async function main(dev) {
     spa: true,
   });
 
-  server.get("*", (_, reply) => {
-    return reply.html();
-  });
+  if (dev) {
+    // https://github.com/fastify/fastify-vite/issues/184
+    server.get("*", (_, reply) => {
+      return reply.html();
+    });
+  }
 
   server.get("/api/random", async (_, reply) => {
     return { message: "Cheers!" };
