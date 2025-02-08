@@ -9,13 +9,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build the Docker image
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        env:
+          CR_REGISTRY: ${{ vars.CR_REGISTRY }}
+          CR_REPOSITORY: timurguseynov
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build . -t genotek -f Dockerfile
-          docker save genotek | gzip > genotek.tgz
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -25,24 +36,9 @@ jobs:
 
       - name: Upload and restart the docker image
         run: |
-          scp genotek.tgz admin@${{ vars.VM_IP_ADDRESS }}:/tmp/
           ssh admin@${{ vars.VM_IP_ADDRESS }} '
-            gunzip -c /tmp/genotek.tgz | sudo docker load &&
+            sudo docker pull cr.yandex/${{ vars.CR_REGISTRY }}/timurguseynov:${{ github.sha }}
             sudo docker stop genotek_service || true &&
             sudo docker rm genotek_service || true &&
-            sudo docker run -d --network host --name genotek_service -e HOST=0.0.0.0 genotek
+            sudo docker run -d --network host --name genotek_service -e HOST=0.0.0.0 cr.yandex/${{ vars.CR_REGISTRY }}/timurguseynov:${{ github.sha }}
           '
-
-      # TODO: upload directly to VM or to registry
-      #
-      ## Yandex Cloud registry upload
-      # - name: Login to Yandex Cloud Container Registry
-      #   id: login-cr
-      #   uses: yc-actions/yc-cr-login@v1
-      #   with:
-      #     yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-      #
-      # - name: Build, tag, and push image to Yandex Cloud Container Registry
-      #   run: |
-      #     docker build -t cr.yandex/${{ env.YC_CR_REGISTRY }}/${{ env.YC_CR_REPOSITORY }}:$IMAGE_TAG .
-      #     docker push cr.yandex/${{ env.YC_CR_REGISTRY }}/${{ env.YC_CR_REPOSITORY }}:$IMAGE_TAG
